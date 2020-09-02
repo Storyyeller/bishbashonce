@@ -1,0 +1,293 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>BISHBASHBOSH</title>
+  <script src="lib/localforage.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
+  <script src="https://unpkg.com/wanakana"></script>
+  <link rel="icon" href="bbb.ico" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=0.8">
+
+  <style type="text/css">
+    body {
+      background-color: #ddd;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    h1 {
+      font-size: 1em;
+      color: #0005;
+      padding: 0em 1em;
+      margin: 0px;
+      background-color: #ddd;
+    }
+    h1 b {
+      color: #0007;
+    }
+    h1 i {
+      color: #0006;
+    }
+    vocabulary {
+      color: #7836ea;
+      text-shadow: 1px 1px #0003;
+    }
+    radical {
+      color: #00a7f0;
+      text-shadow: 1px 1px #0003;
+    }
+    kanji {
+      color: #e65ebe;
+      text-shadow: 1px 1px #0003;
+    }
+    .wkSvg {
+      height: 1em;
+      display: inline-block;
+      position: relative;
+      top: 0.1em;
+      margin-bottom: 0.35em;
+    }
+    .wkSvg img {
+      height: 100%;
+    }
+    #apiKeyForm {
+      display: none;
+    }
+    #showApiForm {
+      text-decoration: none !important;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #000 !important;
+      border: 1px solid #555;
+      padding: 0em 0.2em;
+      display: inline-block;
+    }
+    #loading {
+      margin: 1em;
+      font-size: 2em;
+      animation: blinker 1s linear infinite;
+      display: none;
+    }
+    #contentSelector {
+      display: none;
+    }
+    #main {
+      display: none;
+      text-align: center;
+    }
+    #queue {
+      border: 1px solid #bbb;
+      background-color: #fff6;
+      /*width: fit-content;*/
+      display: table;
+      margin: 0.2em auto;
+      padding: 0.2em 0.5em;
+    }
+    #queue span {
+      padding: 0.2em;
+      margin: 0 0.04em;
+      display: inline-block;
+      border: 1px solid #333;
+      background-color: #fff;
+      font-size: 0.85em;
+    }
+    #result {
+      font-size: 5em;
+      margin-bottom: -1em;
+      font-weight: bold;
+      letter-spacing: -0.1em;
+      width: 10em;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      top: 0.7em;
+      color: #fff;
+      animation-iteration-count: 1;
+      /*transform-origin: 50% 50%;*/
+      opacity: 0;
+    }
+    #result.animate {
+      animation: animationFrames ease-in-out 0.9s;
+    }
+    #result.right {
+      text-shadow: 5px 5px #191, 5px -5px #191, -5px -5px #191, -5px 5px #191;
+    }
+    #result.wrong {
+      text-shadow: 6px 6px #f00, 6px -6px #f00, -6px -6px #f00, -6px 6px #f00;
+    }
+    #question {
+      text-align: center;
+    }
+    #question .label {
+      font-size: 8em;
+      display: inline-block;
+      margin-bottom: -0.13em;
+      color: #222;
+      text-shadow: 0.01em 0.01em 0px #fff3, -0.01em -0.01em 0px #fff3, -0.01em 0.01em 0px #fff3, 0.01em -0.01em 0px #fff3;
+    }
+    #question .kind {
+      text-transform: uppercase;
+      font-weight: bold;
+      border: 1em solid #fff;
+      border-top: 0;
+      border-bottom: 0;
+      padding: 0 0.5em;
+    }
+    #whattoput {
+      margin: 0.3em;
+      font-size: 2em;
+      color: #008eff;
+      line-height: 1.7em;
+    }
+    #answer {
+      font-size: 3em;
+      width: 15em;
+      text-align: center;
+    }
+    #answer::placeholder {
+      color: #fcc;
+    }
+    #solution {
+      width: 45em;
+      border: 1px solid #c98111;
+      background-color: #fff3;
+      display: none;
+      margin: 1em auto;
+      text-align: left;
+      padding: 0em 1em;
+      box-sizing: border-box;
+    }
+    #solution h4 {
+      color: #666;
+    }
+    @keyframes blinker {
+      50% {
+        opacity: 0;
+      }
+    }
+    input[type="radio"] {
+      display: none;
+    }
+    input[type="radio"] + label {
+      border: 1px solid #888;
+      padding: 0.1em 0.4em;
+      margin: 0.1em;
+      background-color: #fff;
+      display: inline-block;
+      cursor: pointer;
+    }
+    input[type="radio"]:checked + label {
+      background-color: #fdb;
+    }
+    input[type="radio"] + label:hover {
+      border-color: #f1e;
+    }
+    @keyframes animationFrames {
+      0% {
+        opacity: 0;
+        transform: translate(-55%, -0px);
+      }
+      10% {
+        opacity: 0.4;
+      }
+      30% {
+        opacity: 0.8;
+      }
+      45% {
+        opacity: 1;
+        transform: translate(-50%, 0px);
+      }
+      55% {
+        opacity: 1;
+        transform: translate(-50%, 0px);
+      }
+      70% {
+        opacity: 0.2;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-45%,0px);
+      }
+    }
+
+    #bug {
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      font-size: 8px;
+    }
+    #bug span {
+      display: none;
+    }
+    #bug:hover span {
+      display: inline;
+    }
+
+    /* Maximum width */
+    @media (max-width: 40rem) {
+      #question .label {
+        font-size: 4em;
+      }
+      #answer {
+        width: 80%;
+      }
+      #result {
+        width: 80%;
+      }
+      #solution {
+        width: 80%;
+      }
+      #bug {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1 style="float:right;"><b>BISH</b>BASH<i>BOSH</i></h1>
+
+  <p>
+    <form id="apiKeyForm">
+      <input type="text" name="apiKey" id="apiKey" required size="50" placeholder="WaniKani V2 API key goes here">
+      <button>Set API key</button>
+    </form>
+  </p>
+
+  <div id="contentSelector">
+    <form id="contentSelectorForm">
+      <a href="#" id="showApiForm" alt="Change API Key">^</a>
+      <strong>What to cram? </strong>
+      <input type="radio" id="a1" name="content" value="apprentice1" checked>
+      <label for="a1">Apprentice 1</label>
+      <input type="radio" id="recentFails" name="content" value="recentlyFailed">
+      <label for="recentFails">Recently failed</label>
+      <input type="radio" id="oldestAppr" name="content" value="oldestApprentices">
+      <label for="oldestAppr">10 oldest apprentices</label>
+      <input type="radio" id="allThat" name="content" value="allThatStuff">
+      <label for="allThat">&lt;&lt; All that stuff</label>
+      <input type="radio" id="plusGurus" name="content" value="plusGurus">
+      <label for="plusGurus">+ 4 ancient gurus</label>
+    </form>
+  </div>
+
+  <div id="info" style="display:none;">
+    <a href="javascript:window.location.reload()">reload</a>
+  </div>
+
+  <div id="loading">L O A D I N G</div>
+
+  <div id="main">
+    <div id="queue"></div>
+    <div id="result" class="right">X</div>
+    <div id="question"></div>
+    <div id="whattoput"></div>
+    <input type="text" name="answer" id="answer" required size="20" placeholder="">
+    <div id="solution"></div>
+  </div>
+
+  <script src="bbo.js"></script>
+
+</body>
+
+</html>
