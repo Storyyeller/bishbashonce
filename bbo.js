@@ -13,11 +13,11 @@ localforage.config({
 const TESTMODE = true;
 
 const apiRoot = "https://api.wanikani.com/v2/";
-const initialHandSize = 3;
+const initialHandSize = 4;
 const maxHandSize = 8;
 const increaseHandThreshold = 2;
 const startingScore = 2;
-const discardScore = 5;
+const discardScore = 3;
 const goodResults = ["OK","GOOD","RIGHT","NICE","WOOO","GREAT","OMG","ooOOoOOoO","!!!!!",
   "(â—•â€¿â—•)", "(â‰§â—¡â‰¦) â™¡", "( : à±¦ â€¸ à±¦ : )", "(^_âˆ’)â˜†", "Î¶Â°)))å½¡", "â”Œ(ï¼¾ï¼¾)â”˜"];
 const badResults = ["DOH","ARGH","NOPE","OOPS!",":-(", "NOOOO", "(á—’á—£á—•)Õž"];
@@ -142,30 +142,31 @@ function fetchRecentlyFailed() {
   });
 }
 
-function fetchTenOldestApprentices() {
+function fetchNonGuruedRadicalsAndKanji() {
   return pullWholeCollection("assignments?srs_stages=1,2,3,4").then(list => {
-    const output = _(list).sortBy(["data.created_at"]).take(10).value();
+    const output = _(list)
+      .filter(x => x.data.passed_at === null && x.data.subject_type !== "vocabulary").value()
     return output;
   });
 }
 
 function fetchAllThatStuff() {
   return Promise.all([pullWholeCollection("assignments?srs_stages=1"),
-    fetchRecentlyFailed(), fetchTenOldestApprentices()]).then(([a1, rfailed, oldest]) => {
+    fetchRecentlyFailed(), fetchNonGuruedRadicalsAndKanji()]).then(([a1, rfailed, oldest]) => {
       return _.unionBy(a1, rfailed, oldest, "data.subject_id");
     });
 }
 
 function fetchAncientGurus() {
   // 4 random gurus older than 10 weeks and not seen in in the past 2 days,
-  // picked from the oldest 20
+  // picked from the oldest 200
   const ageCutoff = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 * 10);
   const recentCorrectCutoff = new Date(Date.now() - 1000 * 60 * 60 * 24 * 2);
   return pullWholeCollection("assignments?srs_stages=5,6").then(list => {
     const output = _(list)
       .sortBy(["data.created_at"])
       .filter(x => new Date(x.data_updated_at) < recentCorrectCutoff)
-      .take(20)
+      .take(200)
       .filter(x => ageCutoff > new Date(x.data.created_at))
       .shuffle()
       .take(4).value();
@@ -290,13 +291,6 @@ function play(assignments, subjects) {
         return success();
       } else if (subj.bad_readings.includes(answer)) {
         return notQuite();
-      } else {
-        const rom = wanakana.toRomaji(answer);
-        const foundClose = _.find(subj.accepted_readings,
-          m => levenshtein(wanakana.toRomaji(m), rom) <= (m.length < 2 ? 0 : 1));
-        if (foundClose) {
-          return notQuite();
-        }
       }
       return fail();
     }
@@ -385,7 +379,7 @@ function play(assignments, subjects) {
     if (!card) {
       answerField.style.display = "none";
       whatToPut.style.display = "none";
-      questionDiv.innerHTML = tpl({label:"BOSH!",object:""});
+      questionDiv.innerHTML = tpl({label:"Done!",object:""});
       document.querySelector("#info").style.display = "block";
       redrawQueue();
       return;
@@ -468,7 +462,7 @@ Promise.all([getLocal("apiKey", null, ""),
       case "recentlyFailed":
         return fetchRecentlyFailed();
       case "oldestApprentices":
-        return fetchTenOldestApprentices();
+        return fetchNonGuruedRadicalsAndKanji();
       case "allThatStuff":
         return fetchAllThatStuff();
       case "plusGurus":
