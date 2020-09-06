@@ -15,7 +15,7 @@ const TESTMODE = true;
 const apiRoot = "https://api.wanikani.com/v2/";
 const initialHandSize = 4;
 const maxHandSize = 8;
-const increaseHandThreshold = 2;
+const increaseHandThreshold = 1;
 const startingScore = 1;
 const discardScore = 3;
 const goodResults = ["OK","GOOD","RIGHT","NICE","WOOO","GREAT","OMG","ooOOoOOoO","!!!!!",
@@ -297,7 +297,7 @@ function play(assignments, subjects) {
   };
   function maybeAddFronDeck() {
     const lowestHandScore = _(hand).map("score").min();
-    if (lowestHandScore >= increaseHandThreshold && hand.length < maxHandSize && deck.length) {
+    if ((hand.length < 2 || lowestHandScore >= increaseHandThreshold) && hand.length < maxHandSize && deck.length) {
       hand.unshift(deck.pop());
     }
   }
