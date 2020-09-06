@@ -19,8 +19,8 @@ const increaseHandThreshold = 2;
 const startingScore = 2;
 const discardScore = 3;
 const goodResults = ["OK","GOOD","RIGHT","NICE","WOOO","GREAT","OMG","ooOOoOOoO","!!!!!",
-  "(â—•â€¿â—•)", "(â‰§â—¡â‰¦) â™¡", "( : à±¦ â€¸ à±¦ : )", "(^_âˆ’)â˜†", "Î¶Â°)))å½¡", "â”Œ(ï¼¾ï¼¾)â”˜"];
-const badResults = ["DOH","ARGH","NOPE","OOPS!",":-(", "NOOOO", "(á—’á—£á—•)Õž"];
+  "(◕‿◕)", "(≧◡≦) ♡", "( : ౦ ‸ ౦ : )", "(^_−)☆", "ζ°)))彡", "┌(＾＾)┘"];
+const badResults = ["DOH","ARGH","NOPE","OOPS!",":-(", "NOOOO", "(ᗒᗣᗕ)՞"];
 const colours = {radical: "#41cdf4", kanji: "#f442e5", vocabulary: "#9541f4"};
 let isLoading = false;
 let apiKey = "";
@@ -386,7 +386,7 @@ function play(assignments, subjects) {
     }
     questionDiv.innerHTML = tpl(card.subject);
     switchInputMode(phase === PH_READING);
-    whatToPut.innerHTML = phase === PH_READING ? "èª­ã¿æ–¹" : "MEANING";
+    whatToPut.innerHTML = phase === PH_READING ? "読み方" : "MEANING";
     answerField.value = "";
     answerField.placeholder = "";
     answerField.style.display = "inline-block";
@@ -512,108 +512,3 @@ document.querySelector("#showApiForm").addEventListener("click", ev => {
   document.querySelector("#apiKeyForm").style.display = "block";
   document.querySelector("#showApiForm").style.display = "none";
 });
-
-
-/**
-
-{
-  "object": "collection",
-  "url": "https://api.wanikani.com/v2/assignments?srs_stages=1",
-  "pages": {
-    "per_page": 500,
-    "next_url": null,
-    "previous_url": null
-  },
-  "total_count": 4,
-  "data_updated_at": "2019-06-14T14:02:40.543476Z",
-  "data": [
-    {
-      "id": 138465838,
-      "object": "assignment",
-      "url": "https://api.wanikani.com/v2/assignments/138465838",
-      "data_updated_at": "2019-06-14T13:12:09.075711Z",
-      "data": {
-        "created_at": "2019-06-09T10:19:56.580172Z",
-        "subject_id": 3189,
-        "subject_type": "vocabulary",
-        "srs_stage": 1,
-        "srs_stage_name": "Apprentice I",
-        "unlocked_at": "2019-06-09T10:19:56.571213Z",
-        "started_at": "2019-06-11T08:07:23.885930Z",
-        "passed_at": null,
-        "burned_at": null,
-        "available_at": "2019-06-14T17:00:00.000000Z",
-        "resurrected_at": null,
-        "passed": false,
-        "resurrected": false,
-        "hidden": false
-      }
-    }
-  ]
-}
-
-
-{
-  "id": 840,
-  "object": "kanji",
-  "url": "https://api.wanikani.com/v2/subjects/840",
-  "data_updated_at": "2019-05-02T22:40:39.893209Z",
-  "data": {
-    "created_at": "2012-05-01T19:54:39.000000Z",
-    "level": 12,
-    "slug": "æ¤",
-    "hidden_at": null,
-    "document_url": "https://www.wanikani.com/kanji/%E6%A4%8D",
-    "characters": "æ¤",
-    "meanings": [
-      {
-        "meaning": "Plant",
-        "primary": true,
-        "accepted_answer": true
-      }
-    ],
-    "auxiliary_meanings": [],
-    "readings": [
-      {
-        "type": "onyomi",
-        "primary": true,
-        "reading": "ã—ã‚‡ã",
-        "accepted_answer": true
-      },
-      {
-        "type": "kunyomi",
-        "primary": false,
-        "reading": "ã†",
-        "accepted_answer": false
-      }
-    ],
-    "component_subject_ids": [
-      23,
-      8821
-    ],
-    "amalgamation_subject_ids": [
-      3381,
-      6498,
-      7748
-    ],
-    "visually_similar_subject_ids": [
-      630,
-      1164,
-      1766,
-      630,
-      1164,
-      1766,
-      1176
-    ],
-    "meaning_mnemonic": "If you want to <radical>fix</radical> a <radical>tree</radical> you have to <kanji>plant</kanji> it. It's pretty obvious that digging up the tree broke it. So fix it by planting it again. That is how plants work.",
-    "meaning_hint": "Is your tree broken? Fix it up by planting it somewhere else. Somewhere with the right amount of light and no biting bugs.",
-    "reading_mnemonic": "If you don't <kanji>plant</kanji> a tree it goes into <reading>shock</reading> (<ja>ã—ã‚‡ã</ja>). Which, honestly, shouldn't be very shocking to you, since it's a tree.",
-    "reading_hint": "Have you ever seen a tree in shock? Imagine it now. It's shaking and dying and sad. Make sure you properly plant all your trees from now on.",
-    "lesson_position": 41
-  }
-}
-
-*/
-
-
-
