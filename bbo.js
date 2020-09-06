@@ -16,7 +16,7 @@ const apiRoot = "https://api.wanikani.com/v2/";
 const initialHandSize = 4;
 const maxHandSize = 8;
 const increaseHandThreshold = 2;
-const startingScore = 2;
+const startingScore = 1;
 const discardScore = 3;
 const goodResults = ["OK","GOOD","RIGHT","NICE","WOOO","GREAT","OMG","ooOOoOOoO","!!!!!",
   "(◕‿◕)", "(≧◡≦) ♡", "( : ౦ ‸ ౦ : )", "(^_−)☆", "ζ°)))彡", "┌(＾＾)┘"];
@@ -262,7 +262,7 @@ function play(assignments, subjects) {
     type: a.data.subject_type,
     subject: subjects[a.data.subject_id],
     availNow: new Date(a.data.available_at) <= now
-  })).shuffle().orderBy(["availNow"],["desc"]).value();
+  })).shuffle().value();
   const hand = deck.splice(0, Math.min(initialHandSize, deck.length));
   const pile = [];
   subjects = null; // free some ram
@@ -379,7 +379,7 @@ function play(assignments, subjects) {
     if (!card) {
       answerField.style.display = "none";
       whatToPut.style.display = "none";
-      questionDiv.innerHTML = tpl({label:"Done!",object:""});
+      questionDiv.innerHTML = tpl({label:"Yosh!",object:""});
       document.querySelector("#info").style.display = "block";
       redrawQueue();
       return;
