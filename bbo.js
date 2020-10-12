@@ -150,13 +150,6 @@ function fetchNonGuruedRadicalsAndKanji() {
   });
 }
 
-function fetchAllThatStuff() {
-  return Promise.all([pullWholeCollection("assignments?srs_stages=1"),
-    fetchRecentlyFailed(), fetchNonGuruedRadicalsAndKanji()]).then(([a1, rfailed, oldest]) => {
-      return _.unionBy(a1, rfailed, oldest, "data.subject_id");
-    });
-}
-
 function fetchAncientGurus() {
   // 4 random gurus older than 10 weeks and not seen in in the past 2 days,
   // picked from the oldest 200
@@ -445,31 +438,43 @@ Promise.all([getLocal("apiKey", null, ""),
   }
   document.querySelector("#contentSelector").style.display = "block";
   document.querySelector("#apiKey").setAttribute("value", apiKey);
-  document.querySelector("input[value=" + content + "]").checked = true
   document.querySelector("#loading").style.display = "block";
   isLoading = true;
 
   const selectedContent = () => {
     const promises = [];
+    // console.log('content =', content);
 
-    switch (content) {
-      case "apprentice1":
+    if (content.includes("apprentice1")) {
         const lvl = queryStr().srsLevelOverride || "1";
-        promises.push(pullWholeCollection("assignments?srs_stages=" + lvl)); break;
-      case "recentlyFailed":
-        promises.push(fetchRecentlyFailed()); break;
-      case "oldestApprentices":
-        promises.push(fetchNonGuruedRadicalsAndKanji()); break;
-      case "allThatStuff":
-        promises.push(fetchAllThatStuff()); break;
-      case "plusGurus":
-        promises.push(fetchAllThatStuff());
+        promises.push(pullWholeCollection("assignments?srs_stages=" + lvl));
+    }
+    if (content.includes("recentlyFailed")) {
+        promises.push(fetchRecentlyFailed());
+    }
+    if (content.includes("oldestApprentices")) {
+        promises.push(fetchNonGuruedRadicalsAndKanji());
+    }
+    if (content.includes("plusGurus")) {
         promises.push(fetchAncientGurus());
-        break;
     }
 
-    return Promise.all(promises)
-      .then(([ats, agurus]) => _.unionBy(ats, agurus, "data.subject_id"));
+    // console.log('promises', promises);
+    promises.map(p => p.then(console.log));
+
+    return Promise.all(promises).then(results => {
+      // console.log('results', results);
+      const m = new Map;
+      for (const list of results) {
+        for (const item of list) {
+          // console.log('item', item);
+          m.set(item.data.subject_id, item);
+        }
+      }
+      const res = [...m.values()];
+      // console.log('returning', res);
+      return [...m.values()];
+    });
   }
 
   Promise.all([selectedContent(), fetchSubjects(), fetchStudyMaterials()]).then(
@@ -506,7 +511,11 @@ Promise.all([getLocal("apiKey", null, ""),
 });
 
 document.querySelector("#contentSelectorForm").addEventListener("change", ev => {
-  const content = usableFormData("contentSelectorForm").content;
+  const form_data = usableFormData("contentSelectorForm");
+  console.log('form data', form_data);
+  const content = Object.keys(form_data).join(',');
+
+  // const content = usableFormData("contentSelectorForm").content;
   storeLocal("content", content).then(v => window.location.reload());
 });
 
