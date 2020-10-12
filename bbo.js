@@ -174,11 +174,6 @@ function fetchAncientGurus() {
   });
 }
 
-function fetchAllThatStuffPlusGurus() {
-  return Promise.all([fetchAllThatStuff(), fetchAncientGurus()])
-    .then(([ats, agurus]) => _.unionBy(ats, agurus, "data.subject_id"));
-}
-
 function fetchStudyMaterials() {
   return getLocal("customSubjects", 1/4).then(local => {
     if (local) {
@@ -455,19 +450,26 @@ Promise.all([getLocal("apiKey", null, ""),
   isLoading = true;
 
   const selectedContent = () => {
+    const promises = [];
+
     switch (content) {
       case "apprentice1":
         const lvl = queryStr().srsLevelOverride || "1";
-        return pullWholeCollection("assignments?srs_stages=" + lvl);
+        promises.push(pullWholeCollection("assignments?srs_stages=" + lvl)); break;
       case "recentlyFailed":
-        return fetchRecentlyFailed();
+        promises.push(fetchRecentlyFailed()); break;
       case "oldestApprentices":
-        return fetchNonGuruedRadicalsAndKanji();
+        promises.push(fetchNonGuruedRadicalsAndKanji()); break;
       case "allThatStuff":
-        return fetchAllThatStuff();
+        promises.push(fetchAllThatStuff()); break;
       case "plusGurus":
-        return fetchAllThatStuffPlusGurus();
+        promises.push(fetchAllThatStuff());
+        promises.push(fetchAncientGurus());
+        break;
     }
+
+    return Promise.all(promises)
+      .then(([ats, agurus]) => _.unionBy(ats, agurus, "data.subject_id"));
   }
 
   Promise.all([selectedContent(), fetchSubjects(), fetchStudyMaterials()]).then(
