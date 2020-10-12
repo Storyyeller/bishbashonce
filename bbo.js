@@ -441,6 +441,11 @@ Promise.all([getLocal("apiKey", null, ""),
   document.querySelector("#loading").style.display = "block";
   isLoading = true;
 
+  for (const ele of document.querySelectorAll('#contentSelectorForm input[type=checkbox]')) {
+    console.log('setting', ele.name, ele.checked, content.includes(ele.name));
+    ele.checked = content.includes(ele.name);
+  }
+
   const selectedContent = () => {
     const promises = [];
     // console.log('content =', content);
@@ -514,6 +519,7 @@ document.querySelector("#contentSelectorForm").addEventListener("change", ev => 
   const form_data = usableFormData("contentSelectorForm");
   console.log('form data', form_data);
   const content = Object.keys(form_data).join(',');
+  console.log('content stored', content);
 
   // const content = usableFormData("contentSelectorForm").content;
   storeLocal("content", content).then(v => window.location.reload());
