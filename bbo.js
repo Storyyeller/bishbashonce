@@ -13,7 +13,7 @@ localforage.config({
 const TESTMODE = true;
 
 const apiRoot = "https://api.wanikani.com/v2/";
-const initialHandSize = 4;
+const initialHandSize = 3;
 const maxHandSize = 8;
 const increaseHandThreshold = 1;
 const startingScore = 1;
@@ -244,14 +244,15 @@ function play(assignments, subjects) {
   const PH_READING = 2;
 
   const now = new Date();
-  const deck = _(assignments).map(a => ({
+  const deck = [];
+  const hand = _(assignments).map(a => ({
     score: startingScore,
     perfect: true,
     type: a.data.subject_type,
     subject: subjects[a.data.subject_id],
     availNow: new Date(a.data.available_at) <= now
   })).shuffle().value();
-  const hand = deck.splice(0, Math.min(initialHandSize, deck.length));
+  // const hand = deck.splice(0, Math.min(initialHandSize, deck.length));
   const pile = [];
   subjects = null; // free some ram
 
