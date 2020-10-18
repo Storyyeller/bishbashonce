@@ -327,7 +327,7 @@ function play(assignments, subjects) {
           }
         } else {
           // move back in hand
-          hand.splice(Math.min(hand.length-1, card.score*3), 0, hand.shift());
+          hand.splice(Math.min(hand.length-1, card.score*5), 0, hand.shift());
         }
         maybeAddFronDeck();
       }
@@ -390,8 +390,12 @@ function play(assignments, subjects) {
       const offset = Math.round(score / discardScore * 55);
       return 'style="background-color: rgb(' + (255-offset) + ',' + (200+offset) + ',200);"';
     };
+
+    const disp_hand = hand.slice(0, maxHandSize);
+    const deck = hand.slice(maxHandSize);
+
     queue.innerHTML = '<strong style="color:#2c2;">' + pile.length + "</strong> + " +
-      _.map(hand, c => "<span " + style(c.score) + ">" + c.subject.label + "</span>").join("") +
+      _.map(disp_hand, c => "<span " + style(c.score) + ">" + c.subject.label + "</span>").join("") +
       ' + <strong style="color:#f22;">' + deck.length + "</strong>";
   }
 
