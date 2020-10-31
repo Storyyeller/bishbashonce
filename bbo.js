@@ -83,6 +83,14 @@ function usableFormData(id) {
   return _.fromPairs(Array.from(fd.entries()));
 }
 
+const controller = new AbortController();
+const signal = controller.signal;
+function reloadPage() {
+  controller.abort();
+  window.location.reload();
+}
+
+
 function fetchWk(endpoint) {
   if (endpoint.substr(0,4) !== "http") {
     endpoint = apiRoot + endpoint;
@@ -93,9 +101,11 @@ function fetchWk(endpoint) {
       headers: {
         "Wanikani-Revision": "20170710",
         "Authorization": "Bearer " + apiKey
-      }
+      },
+      signal,
     }
   ).then(res => res.json()).catch( e => {
+    if (e.name === 'AbortError') {throw e}
     throw new Error("Error fetching " + endpoint + "\n'" + e.message + "'");
   });
 }
@@ -429,7 +439,7 @@ document.querySelector("#apiKeyForm").addEventListener("submit", e => {
   if (newApiKey) {
     clearLocal()
       .then(() => storeLocal("apiKey", newApiKey))
-      .then(() => window.location.reload());
+      .then(reloadPage);
   }
 });
 
@@ -511,12 +521,14 @@ Promise.all([getLocal("apiKey", null, ""),
       play(assignments, subjects);
     }
   ).catch(err => {
+    if (err.name === 'AbortError') {
+      return;
+    }
+
     alert("Something went wrong...\n\nError was: " + err.message);
     return clearLocal().then(() => {
       return localforage.dropInstance();
-    }).then(() => {
-      window.location.reload()
-    });
+    }).then(reloadPage);
   });
 });
 
@@ -527,7 +539,7 @@ document.querySelector("#contentSelectorForm").addEventListener("change", ev => 
   console.log('content stored', content);
 
   // const content = usableFormData("contentSelectorForm").content;
-  storeLocal("content", content).then(v => window.location.reload());
+  storeLocal("content", content).then(reloadPage);
 });
 
 document.querySelector("#showApiForm").addEventListener("click", ev => {
