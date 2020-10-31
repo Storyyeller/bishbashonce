@@ -260,7 +260,9 @@ function play(assignments, subjects) {
     perfect: true,
     type: a.data.subject_type,
     subject: subjects[a.data.subject_id],
-    availNow: new Date(a.data.available_at) <= now
+    availNow: new Date(a.data.available_at) <= now,
+    // Warning, some "assignments" are actually reviews
+    is_weak: (a.data.srs_stage || a.data.starting_srs_stage) === 1,
   })).shuffle().value();
   // const hand = deck.splice(0, Math.min(initialHandSize, deck.length));
   const pile = [];
@@ -314,7 +316,7 @@ function play(assignments, subjects) {
     animateResult(true, card.score);
     if (subj.object === "radical" || phase === PH_READING) {
       if (curAudio) { curAudio.play(); }
-      if (hadError) {
+      if (hadError && card.is_weak) {
         hand.splice(1, 0, hand.shift());
       } else {
         card.score += card.perfect ? 2 : 1;
@@ -365,7 +367,7 @@ function play(assignments, subjects) {
       solution.innerHTML = solTpl({title: subj.primary_readings, sub: subj.accepted_readings, body: subj.reading_mnemonic});
     }
     if (!hadError) {
-      card.score = Math.max(0, card.score - 2);
+      card.score = Math.max(0, card.score - 1);
       card.perfect = false;
     }
     solution.style.display = "block";
