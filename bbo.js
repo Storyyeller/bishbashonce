@@ -281,6 +281,7 @@ function play(assignments, subjects) {
     const answer = _.trim(answerField.value).toLowerCase();
     if (answer === "") { return; }
     if (TESTMODE && answer==="1" || answer==="2") {
+      if (answer === "1") {card.perfect = true;}
       return answer === "1" ? success() : fail();
     }
     if (phase === PH_MEANING) {
@@ -339,7 +340,8 @@ function play(assignments, subjects) {
           }
         } else {
           // move back in hand
-          hand.splice(Math.min(hand.length-1, card.score*5), 0, hand.shift());
+          const offset = Math.floor((card.score + Math.random()/2) * (5 + Math.random()));
+          hand.splice(Math.min(hand.length-1, offset), 0, hand.shift());
         }
         maybeAddFronDeck();
       }
