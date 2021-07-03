@@ -111,6 +111,7 @@ function fetchWk(endpoint) {
 }
 
 function pullWholeCollection(endpoint) {
+  const t0 = performance.now();
   return new Promise((resolve, reject) => {
     let numItemsPulled = 0;
     let results = [];
@@ -124,6 +125,7 @@ function pullWholeCollection(endpoint) {
       if (numItemsPulled < result.total_count) {
         return fetchWk(result.pages.next_url).then(handleResult);
       } else {
+        console.log(endpoint, performance.now() - t0);
          return resolve(_(results).map("data").flatten().value());
       }
     };
@@ -153,9 +155,9 @@ function fetchRecentlyFailed() {
 }
 
 function fetchNonGuruedRadicalsAndKanji() {
-  return pullWholeCollection("assignments?srs_stages=1,2,3,4").then(list => {
+  return pullWholeCollection("assignments?srs_stages=1,2,3,4&subject_types=radical,kanji").then(list => {
     const output = _(list)
-      .filter(x => x.data.passed_at === null && x.data.subject_type !== "vocabulary").value()
+      .filter(x => x.data.passed_at === null).value()
     return output;
   });
 }
@@ -484,7 +486,7 @@ Promise.all([getLocal("apiKey", null, ""),
     }
 
     // console.log('promises', promises);
-    promises.map(p => p.then(console.log));
+    // promises.map(p => p.then(console.log));
 
     return Promise.all(promises).then(results => {
       // console.log('results', results);
